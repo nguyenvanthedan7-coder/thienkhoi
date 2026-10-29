@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hệ Thống Trắc Nghiệm Trực Tuyến</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --border: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      padding: 28px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    /* Mode Selection Screen */
+    .setup-screen {
+      display: block;
+      text-align: center;
+    }
+
+    .info-card {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 20px 0;
+      text-align: left;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .mode-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .mode-options {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mode-card {
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .mode-card:hover {
+      border-color: var(--primary);
+      background-color: #f0f7ff;
+    }
+
+    .mode-card h3 {
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+
+    .mode-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* Quiz Screen */
+    .quiz-screen {
+      display: none;
+    }
+
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+      background: #f1f5f9;
+      padding: 12px 16px;
+      border-radius: 6px;
+    }
+
+    .question-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .option-btn {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      text-align: left;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background-color: #f8fafc;
+      border-color: var(--primary);
+    }
+
+    .option-btn.selected {
+      border-color: var(--primary);
+      background-color: #eff6ff;
+      font-weight: 600;
+    }
+
+    .option-btn.correct {
+      background-color: #dcfce7 !important;
+      border-color: var(--success) !important;
+      color: #14532d;
+    }
+
+    .option-btn.incorrect {
+      background-color: #fee2e2 !important;
+      border-color: var(--danger) !important;
+      color: #7f1d1d;
+    }
+
+    .feedback-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .feedback-box.correct {
+      display: block;
+      background: #dcfce7;
+      color: var(--success);
+    }
+
+    .feedback-box.incorrect {
+      display: block;
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    .quiz-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .btn-submit {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-submit:hover {
+      background: #15803d;
+    }
+
+    /* Result Screen */
+    .result-screen {
+      display: none;
+      text-align: center;
+    }
+
+    .score-badge {
+      font-size: 3rem;
+      font-weight: 800;
+      margin: 16px 0;
+    }
+
+    .status-pass {
+      color: var(--success);
+    }
+
+    .status-fail {
+      color: var(--danger);
+    }
+
+    .result-details {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 20px 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .result-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .result-item span:first-child {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .result-item span:last-child {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Ôn Luyện & Thi Trắc Nghiệm</h1>
+    </header>
+
+    <!-- Màn hình chọn chế độ -->
+    <div id="setupScreen" class="setup-screen">
+      <div class="info-card">
+        <strong>Thông tin bài thi:</strong>
+        <ul style="margin-left: 20px; margin-top: 6px;">
+          <li>Mỗi lượt thi gồm <strong>50 câu hỏi</strong> được lấy ngẫu nhiên từ ngân hàng.</li>
+          <li>Điều kiện ĐẠT: Đúng tối thiểu <strong>35 / 50 câu</strong> (đạt 70%).</li>
+        </ul>
+      </div>
+
+      <p style="font-weight: 600; margin-bottom: 12px;">Chọn chế độ làm bài:</p>
+      
+      <div class="mode-options">
+        <div class="mode-card" onclick="startQuiz('practice')">
+          <h3>Tự Động Chấm</h3>
+          <p>Hiển thị ngay đáp án Đúng/Sai sau khi bạn chọn phương án. Thích hợp để ôn tập.</p>
+        </div>
+        <div class="mode-card" onclick="startQuiz('exam')">
+          <h3>Thi Thật</h3>
+          <p>Làm hết 50 câu hỏi và nộp bài để xem kết quả Đạt / Trượt cuối cùng.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Màn hình làm bài -->
+    <div id="quizScreen" class="quiz-screen">
+      <div class="quiz-header">
+        <span id="modeDisplay">Chế độ: Thi Thật</span>
+        <span id="progressDisplay">Câu: 1 / 50</span>
+      </div>
+
+      <div class="question-title" id="questionText">Nội dung câu hỏi ở đây?</div>
+
+      <div class="options-list" id="optionsContainer">
+        <!-- Phương án sẽ được chèn bằng Javascript -->
+      </div>
+
+      <div id="feedbackBox" class="feedback-box"></div>
+
+      <div class="quiz-nav" style="margin-top: 24px;">
+        <button id="prevBtn" class="btn btn-secondary" onclick="prevQuestion()">Câu trước</button>
+        <button id="nextBtn" class="btn btn-primary" onclick="nextQuestion()">Câu tiếp</button>
+        <button id="submitBtn" class="btn btn-submit" style="display: none;" onclick="confirmSubmit()">Nộp bài</button>
+      </div>
+    </div>
+
+    <!-- Màn hình kết quả -->
+    <div id="resultScreen" class="result-screen">
+      <h2>Kết Quả Bài Thi</h2>
+      <div id="statusText" class="score-badge status-pass">ĐẠT</div>
+      <p id="resultMessage">Chúc mừng bạn đã vượt qua bài thi!</p>
+
+      <div class="result-details">
+        <div class="result-item">
+          <span>Tổng số câu</span>
+          <span>50</span>
+        </div>
+        <div class="result-item">
+          <span>Số câu đúng</span>
+          <span id="correctAnswersCount" style="color: var(--success);">0</span>
+        </div>
+        <div class="result-item">
+          <span>Điểm số</span>
+          <span id="scorePercentage">0%</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="resetQuiz()">Làm bài lại</button>
+    </div>
+  </div>
+
+  <!-- Nạp file câu hỏi riêng -->
+  <script src="questions.js"></script>
+
+  <script>
+    const TOTAL_QUESTIONS_PER_TEST = 50;
+    const PASS_THRESHOLD = 35;
+
+    let selectedQuestions = [];
+    let userAnswers = {}; // Lưu đáp án người dùng chọn: { indexQuestion: optionIndex }
+    let currentQuestionIndex = 0;
+    let quizMode = 'practice'; // 'practice' hoặc 'exam'
+
+    // Lấy phần tử DOM
+    const setupScreen = document.getElementById('setupScreen');
+    const quizScreen = document.getElementById('quizScreen');
+    const resultScreen = document.getElementById('resultScreen');
+
+    const questionText = document.getElementById('questionText');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const feedbackBox = document.getElementById('feedbackBox');
+    const progressDisplay = document.getElementById('progressDisplay');
+    const modeDisplay = document.getElementById('modeDisplay');
+
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Hàm xáo trộn mảng (Fisher-Yates Shuffle)
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // Khởi tạo bài thi
+    function startQuiz(mode) {
+      quizMode = mode;
+      userAnswers = {};
+      currentQuestionIndex = 0;
+
+      // Random 50 câu hỏi từ file questionsBank
+      if (typeof questionsBank === 'undefined' || questionsBank.length === 0) {
+        alert("Không tìm thấy dữ liệu câu hỏi trong file questions.js!");
+        return;
+      }
+
+      const shuffled = shuffleArray(questionsBank);
+      selectedQuestions = shuffled.slice(0, Math.min(TOTAL_QUESTIONS_PER_TEST, shuffled.length));
+
+      // Cập nhật UI
+      setupScreen.style.display = 'none';
+      resultScreen.style.display = 'none';
+      quizScreen.style.display = 'block';
+
+      modeDisplay.textContent = mode === 'practice' ? 'Chế độ: Tự Động Chấm' : 'Chế độ: Thi Thật';
+
+      renderQuestion();
+    }
+
+    // Hiển thị câu hỏi hiện tại
+    function renderQuestion() {
+      const q = selectedQuestions[currentQuestionIndex];
+      questionText.textContent = `Câu ${currentQuestionIndex + 1}: ${q.question}`;
+      progressDisplay.textContent = `Câu: ${currentQuestionIndex + 1} / ${selectedQuestions.length}`;
+
+      optionsContainer.innerHTML = '';
+      feedbackBox.className = 'feedback-box';
+      feedbackBox.style.display = 'none';
+
+      const userSelected = userAnswers[currentQuestionIndex];
+
+      q.options.forEach((opt, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerHTML = `<strong style="margin-right: 8px;">${String.fromCharCode(65 + index)}.</strong> ${opt}`;
+        
+        if (userSelected === index) {
+          btn.classList.add('selected');
+        }
+
+        // Nếu ở chế độ Tự động chấm và câu hỏi đã được trả lời
+        if (quizMode === 'practice' && userSelected !== undefined) {
+          if (index === q.answer) {
+            btn.classList.add('correct');
+          }
+          if (userSelected === index && userSelected !== q.answer) {
+            btn.classList.add('incorrect');
+          }
+        }
+
+        btn.onclick = () => selectOption(index);
+        optionsContainer.appendChild(btn);
+      });
+
+      // Hiển thị feedback nếu ở chế độ Luyện tập
+      if (quizMode === 'practice' && userSelected !== undefined) {
+        if (userSelected === q.answer) {
+          feedbackBox.textContent = 'Chính xác!';
+          feedbackBox.className = 'feedback-box correct';
+        } else {
+          feedbackBox.textContent = `Sai rồi! Đáp án đúng là: ${String.fromCharCode(65 + q.answer)}. ${q.options[q.answer]}`;
+          feedbackBox.className = 'feedback-box incorrect';
+        }
+      }
+
+      // Điều khiển nút bấm Next/Prev/Submit
+      prevBtn.style.visibility = currentQuestionIndex === 0 ? 'hidden' : 'visible';
+      
+      if (currentQuestionIndex === selectedQuestions.length - 1) {
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'inline-block';
+      } else {
+        nextBtn.style.display = 'inline-block';
+        submitBtn.style.display = quizMode === 'exam' ? 'inline-block' : 'none'; 
+      }
+    }
+
+    // Xử lý khi chọn đáp án
+    function selectOption(index) {
+      userAnswers[currentQuestionIndex] = index;
+      renderQuestion();
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < selectedQuestions.length - 1) {
+        currentQuestionIndex++;
+        renderQuestion();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderQuestion();
+      }
+    }
+
+    function confirmSubmit() {
+      const answeredCount = Object.keys(userAnswers).length;
+      if (answeredCount < selectedQuestions.length) {
+        const confirmNop = confirm(`Bạn mới làm ${answeredCount}/${selectedQuestions.length} câu. Bạn có chắc chắn muốn nộp bài không?`);
+        if (!confirmNop) return;
+      }
+      finishQuiz();
+    }
+
+    // Tính điểm và hiển thị màn hình kết quả
+    function finishQuiz() {
+      let correctCount = 0;
+      selectedQuestions.forEach((q, index) => {
+        if (userAnswers[index] === q.answer) {
+          correctCount++;
+        }
+      });
+
+      quizScreen.style.display = 'none';
+      resultScreen.style.display = 'block';
+
+      const isPass = correctCount >= PASS_THRESHOLD;
+      const statusText = document.getElementById('statusText');
+      const resultMessage = document.getElementById('resultMessage');
+
+      document.getElementById('correctAnswersCount').textContent = correctCount;
+      document.getElementById('scorePercentage').textContent = `${Math.round((correctCount / selectedQuestions.length) * 100)}%`;
+
+      if (isPass) {
+        statusText.textContent = 'ĐẠT';
+        statusText.className = 'score-badge status-pass';
+        resultMessage.textContent = `Chúc mừng bạn! Bạn đã trả lời đúng ${correctCount}/${selectedQuestions.length} câu.`;
+      } else {
+        statusText.textContent = 'TRƯỢT';
+        statusText.className = 'score-badge status-fail';
+        resultMessage.textContent = `Rất tiếc! Bạn cần làm đúng tối thiểu ${PASS_THRESHOLD}/${selectedQuestions.length} câu để ĐẠT.`;
+      }
+    }
+
+    function resetQuiz() {
+      resultScreen.style.display = 'none';
+      setupScreen.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
